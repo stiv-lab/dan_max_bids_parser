@@ -5,7 +5,7 @@
 Обходит исходники в src/ (и, при желании, tests/), собирает список .py файлов
 и формирует Markdown-индекс:
 
-- группировка по "слою" / директории (например, src/dan_max/domain),
+- группировка по "слою" / директории (например, src/dan_max_bids_parser/domain),
 - внутри — поддиректории (entities, services и т.п.),
 - для каждого файла: относительный путь и краткое описание.
 
@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 
+# PROJECT_ROOT — корень репозитория (каталог, где лежит pyproject.toml, src, tests, tools и т.п.)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Каталоги, которые считаем "исходниками" для индекса
@@ -159,16 +160,18 @@ def group_modules(modules: List[ModuleInfo]) -> Dict[str, Dict[str, List[ModuleI
     Группирует модули по "слою" и поддиректориям.
 
     Логика:
-    - layer_key: первые 2–3 компонента пути (например, src/dan_max/domain)
+    - layer_key: первые 2–3 компонента пути
+      (например, src/dan_max_bids_parser/domain или src/dan_max_bids_parser/infrastructure)
     - subdir_key: оставшаяся часть директории (например, entities, services)
     """
     grouped: Dict[str, Dict[str, List[ModuleInfo]]] = {}
 
     for mi in modules:
-        parts = mi.rel_path.parts  # например: ("src", "dan_max", "domain", "entities", "bid.py")
+        parts = mi.rel_path.parts
+        # например: ("src", "dan_max_bids_parser", "domain", "entities", "bid.py")
 
         if len(parts) >= 3:
-            layer_key = "/".join(parts[:3])  # src/dan_max/domain
+            layer_key = "/".join(parts[:3])  # src/dan_max_bids_parser/domain
             remaining_dir_parts = parts[3:-1]
         elif len(parts) == 2:
             layer_key = "/".join(parts[:2])
