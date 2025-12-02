@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     """Глобальные настройки приложения."""
 
     # Примеры:
-    #   локальный SQLite:  sqlite+aiosqlite:///./dan_max_bids.db
+    #   локальный SQLite:  sqlite:///./dan_max_bids.db
     #   продовый Postgres: postgresql+psycopg://user:pass@host:port/dbname
-    DATABASE_URL: str = "sqlite+aiosqlite:///./dan_max_bids.db"
+    DATABASE_URL: str = "sqlite:///./dan_max_bids.db"
 
     # Конфигурация загрузки env-файлов
     model_config = SettingsConfigDict(
