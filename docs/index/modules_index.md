@@ -55,6 +55,11 @@
 - `src/dan_max_bids_parser/infrastructure/db/unit_of_work.py`  
   Описание: Описание отсутствует
 
+### http/
+
+- `src/dan_max_bids_parser/infrastructure/http/html_client.py`  
+  Описание: Описание отсутствует
+
 
 ## src/dan_max_bids_parser/interfaces/
 
