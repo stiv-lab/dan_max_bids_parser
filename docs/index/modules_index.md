@@ -54,3 +54,11 @@
 
 - `src/dan_max_bids_parser/infrastructure/db/unit_of_work.py`  
   Описание: Описание отсутствует
+
+
+## src/dan_max_bids_parser/interfaces/
+
+### (корень слоя)
+
+- `src/dan_max_bids_parser/interfaces/harvest_source_cli.py`  
+  Описание: CLI-интерфейс для ручного запуска use-case RunSourceHarvesting.
