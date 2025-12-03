@@ -1,0 +1,11 @@
+# path: .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: generate-modules-index
+        name: Generate modules index
+        entry: poetry run python tools/generate_module_index.py
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [commit]
