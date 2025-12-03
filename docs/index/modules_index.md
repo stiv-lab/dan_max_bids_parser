@@ -46,6 +46,11 @@
 - `src/dan_max_bids_parser/infrastructure/adapters/samosval_raw_item_provider_adapter.py`  
   Описание: Адаптер: SamosvalRawItemProviderAdapter.
 
+### composition/
+
+- `src/dan_max_bids_parser/infrastructure/composition/samosval_harvesting_factory.py`  
+  Описание: Фабрики для сборки стека RunSourceHarvestingService для samosval.info.
+
 ### db/
 
 - `src/dan_max_bids_parser/infrastructure/db/base.py`  
