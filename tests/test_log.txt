@@ -1,468 +1,116 @@
-➜  repo_dan_max_bids_parser git:(feat/mvp-initial-schema) ✗ poetry run pytest tests/db/test_repositories_basic_crud.py -q
-.FF                                                                                                              [100%]
+➜  repo_dan_max_bids_parser git:(feat/mvp-sqlalchemy-uow) ✗ poetry run pytest tests
+================================================= test session starts ==================================================
+platform linux -- Python 3.11.14, pytest-9.0.1, pluggy-1.6.0
+rootdir: /root/projects/repo_dan_max_bids_parser
+configfile: pyproject.toml
+plugins: asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 17 items
+
+tests/application/test_run_source_harvesting_interface.py .                                                      [  5%]
+tests/application/test_unit_of_work_contract.py .                                                                [ 11%]
+tests/db/test_db_base.py ..                                                                                      [ 23%]
+tests/db/test_initial_schema.py ...                                                                              [ 41%]
+tests/db/test_models_metadata.py .                                                                               [ 47%]
+tests/db/test_repositories_basic_crud.py ...                                                                     [ 64%]
+tests/db/test_unit_of_work_sqlalchemy.py FFF                                                                     [ 82%]
+tests/domain/test_entities_basic.py ...                                                                          [100%]
+
 ======================================================= FAILURES =======================================================
-_________________________________________ test_raw_item_repository_and_mapping _________________________________________
+___________________________________________ test_uow_commit_persists_changes ___________________________________________
 
-self = <sqlalchemy.engine.base.Connection object at 0x726b04657350>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b04657ad0>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x726b04657b50>
-parameters = [(1, 'ext-1', 'https://example.com/item/1', None, '"<html>payload</html>"', 'new', ...)]
-
-    def _exec_single_context(
-        self,
-        dialect: Dialect,
-        context: ExecutionContext,
-        statement: Union[str, Compiled],
-        parameters: Optional[_AnyMultiExecuteParams],
-    ) -> CursorResult[Any]:
-        """continue the _execute_context() method for a single DBAPI
-        cursor.execute() or cursor.executemany() call.
-
+    def test_uow_commit_persists_changes():
         """
-        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
-            generic_setinputsizes = context._prepare_set_input_sizes()
+        Проверяем, что при явном commit() данные фиксируются в БД.
 
-            if generic_setinputsizes:
-                try:
-                    dialect.do_set_input_sizes(
-                        context.cursor, generic_setinputsizes, context
-                    )
-                except BaseException as e:
-                    self._handle_dbapi_exception(
-                        e, str(statement), parameters, None, context
-                    )
-
-        cursor, str_statement, parameters = (
-            context.cursor,
-            context.statement,
-            context.parameters,
-        )
-
-        effective_parameters: Optional[_AnyExecuteParams]
-
-        if not context.executemany:
-            effective_parameters = parameters[0]
-        else:
-            effective_parameters = parameters
-
-        if self._has_events or self.engine._has_events:
-            for fn in self.dispatch.before_cursor_execute:
-                str_statement, effective_parameters = fn(
-                    self,
-                    cursor,
-                    str_statement,
-                    effective_parameters,
-                    context,
-                    context.executemany,
-                )
-
-        if self._echo:
-            self._log_info(str_statement)
-
-            stats = context._get_cache_stats()
-
-            if not self.engine.hide_parameters:
-                self._log_info(
-                    "[%s] %r",
-                    stats,
-                    sql_util._repr_params(
-                        effective_parameters,
-                        batches=10,
-                        ismulti=context.executemany,
-                    ),
-                )
-            else:
-                self._log_info(
-                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
-                    stats,
-                )
-
-        evt_handled: bool = False
-        try:
-            if context.execute_style is ExecuteStyle.EXECUTEMANY:
-                effective_parameters = cast(
-                    "_CoreMultiExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_executemany:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_executemany(
-                        cursor,
-                        str_statement,
-                        effective_parameters,
-                        context,
-                    )
-            elif not effective_parameters and context.no_parameters:
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute_no_params:
-                        if fn(cursor, str_statement, context):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_execute_no_params(
-                        cursor, str_statement, context
-                    )
-            else:
-                effective_parameters = cast(
-                    "_CoreSingleExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
->                   self.dialect.do_execute(
-                        cursor, str_statement, effective_parameters, context
-                    )
-
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1967:
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-cursor = <sqlite3.Cursor object at 0x726b0461a440>
-statement = 'INSERT INTO raw_items (source_id, external_id, url, fetched_at, payload, status, error_message, hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-parameters = (1, 'ext-1', 'https://example.com/item/1', None, '"<html>payload</html>"', 'new', ...)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b04657ad0>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       sqlite3.IntegrityError: NOT NULL constraint failed: raw_items.fetched_at
-
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/default.py:951: IntegrityError
-
-The above exception was the direct cause of the following exception:
-
-    def test_raw_item_repository_and_mapping():
-        session = SessionFactory()
-        src_repo = SqlAlchemySourceRepository(session=session)
-        raw_repo = SqlAlchemyRawItemRepository(session=session)
-
-        try:
-            source = src_repo.save(
-                SourceEntity(
-                    code="RAW_TEST",
-                    name="Raw Test Source",
-                    kind="html",
-                    is_active=True,
-                    description="",
-                )
-            )
-
-            now = datetime.utcnow()
-            raw = RawItemEntity(
-                source_id=source.id or 0,
-                external_id="ext-1",
-                payload="<html>payload</html>",
-                url="https://example.com/item/1",
-                created_at=now,
-                received_at=now,
-            )
-
->           saved_raw = raw_repo.add(raw)
-                        ^^^^^^^^^^^^^^^^^
-
-tests/db/test_repositories_basic_crud.py:86:
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-src/dan_max_bids_parser/infrastructure/db/repositories.py:169: in add
-    self._session.flush()
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4331: in flush
-    self._flush(objects)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4466: in _flush
-    with util.safe_reraise():
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
-    raise exc_value.with_traceback(exc_tb)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4427: in _flush
-    flush_context.execute()
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
-    rec.execute(self)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
-    util.preloaded.orm_persistence.save_obj(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
-    _emit_insert_statements(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
-    result = connection.execute(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1419: in execute
-    return meth(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
-    return connection._execute_clauseelement(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
-    ret = self._execute_context(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
-    return self._exec_single_context(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
-    self._handle_dbapi_exception(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
-    self.dialect.do_execute(
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-cursor = <sqlite3.Cursor object at 0x726b0461a440>
-statement = 'INSERT INTO raw_items (source_id, external_id, url, fetched_at, payload, status, error_message, hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-parameters = (1, 'ext-1', 'https://example.com/item/1', None, '"<html>payload</html>"', 'new', ...)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b04657ad0>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: raw_items.fetched_at
-E       [SQL: INSERT INTO raw_items (source_id, external_id, url, fetched_at, payload, status, error_message, hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)]
-E       [parameters: (1, 'ext-1', 'https://example.com/item/1', None, '"<html>payload</html>"', 'new', None, None, '2025-12-02 21:53:01.100723')]
-E       (Background on this error at: https://sqlalche.me/e/20/gkpj)
-
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/default.py:951: IntegrityError
-__________________________________________ test_bid_repository_and_duplicates __________________________________________
-
-self = <sqlalchemy.engine.base.Connection object at 0x726b03cb7fd0>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b03cb7b90>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x726b03cb7c90>
-parameters = [(1, None, 'BID-123', 'Перевозка щебня', 'Нужна перевозка 30 т щебня', 'щебень', ...)]
-
-    def _exec_single_context(
-        self,
-        dialect: Dialect,
-        context: ExecutionContext,
-        statement: Union[str, Compiled],
-        parameters: Optional[_AnyMultiExecuteParams],
-    ) -> CursorResult[Any]:
-        """continue the _execute_context() method for a single DBAPI
-        cursor.execute() or cursor.executemany() call.
-
+        Здесь мы сознательно работаем напрямую с ORM-моделью Source через
+        uow.session, чтобы протестировать транзакционное поведение
+        SqlAlchemyUnitOfWork, а не контракт репозитория (он покрыт
+        отдельными тестами в test_repositories_basic_crud.py).
         """
-        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
-            generic_setinputsizes = context._prepare_set_input_sizes()
+        SessionFactory = _make_session_factory()
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
 
-            if generic_setinputsizes:
-                try:
-                    dialect.do_set_input_sizes(
-                        context.cursor, generic_setinputsizes, context
-                    )
-                except BaseException as e:
-                    self._handle_dbapi_exception(
-                        e, str(statement), parameters, None, context
-                    )
+        with uow:
+            src = Source(
+                code="TEST_SRC",
+                name="Test Source",
+                kind="html",
+                # остальные поля полагаемся на значения по умолчанию
+            )
+            uow.session.add(src)
+            uow.commit()
 
-        cursor, str_statement, parameters = (
-            context.cursor,
-            context.statement,
-            context.parameters,
-        )
+        # Новая сессия: читаем напрямую через репозиторий,
+        # чтобы убедиться, что данные действительно зафиксированы.
+        with SessionFactory() as session:
+            repo = SqlAlchemySourceRepository(session)
+>           sources = list(repo.list())
+                           ^^^^^^^^^
+E           AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
 
-        effective_parameters: Optional[_AnyExecuteParams]
+tests/db/test_unit_of_work_sqlalchemy.py:53: AttributeError
+______________________________________ test_uow_without_commit_rolls_back_changes ______________________________________
 
-        if not context.executemany:
-            effective_parameters = parameters[0]
-        else:
-            effective_parameters = parameters
+    def test_uow_without_commit_rolls_back_changes():
+        """
+        Проверяем, что без commit() изменения не попадают в БД.
 
-        if self._has_events or self.engine._has_events:
-            for fn in self.dispatch.before_cursor_execute:
-                str_statement, effective_parameters = fn(
-                    self,
-                    cursor,
-                    str_statement,
-                    effective_parameters,
-                    context,
-                    context.executemany,
-                )
+        Внутри контекста добавляем объект в сессию, но не вызываем commit().
+        При выходе из контекста UoW должен сделать rollback().
+        """
+        SessionFactory = _make_session_factory()
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
 
-        if self._echo:
-            self._log_info(str_statement)
+        with uow:
+            src = Source(
+                code="NO_COMMIT",
+                name="No Commit Source",
+                kind="html",
+            )
+            uow.session.add(src)
+            # commit() намеренно не вызываем
 
-            stats = context._get_cache_stats()
+        with SessionFactory() as session:
+            repo = SqlAlchemySourceRepository(session)
+>           sources = list(repo.list())
+                           ^^^^^^^^^
+E           AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
 
-            if not self.engine.hide_parameters:
-                self._log_info(
-                    "[%s] %r",
-                    stats,
-                    sql_util._repr_params(
-                        effective_parameters,
-                        batches=10,
-                        ismulti=context.executemany,
-                    ),
-                )
-            else:
-                self._log_info(
-                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
-                    stats,
-                )
+tests/db/test_unit_of_work_sqlalchemy.py:79: AttributeError
+____________________________________________ test_uow_rollback_on_exception ____________________________________________
 
-        evt_handled: bool = False
-        try:
-            if context.execute_style is ExecuteStyle.EXECUTEMANY:
-                effective_parameters = cast(
-                    "_CoreMultiExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_executemany:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_executemany(
-                        cursor,
-                        str_statement,
-                        effective_parameters,
-                        context,
-                    )
-            elif not effective_parameters and context.no_parameters:
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute_no_params:
-                        if fn(cursor, str_statement, context):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_execute_no_params(
-                        cursor, str_statement, context
-                    )
-            else:
-                effective_parameters = cast(
-                    "_CoreSingleExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
->                   self.dialect.do_execute(
-                        cursor, str_statement, effective_parameters, context
-                    )
+    def test_uow_rollback_on_exception():
+        """
+        Проверяем, что при исключении внутри контекста все изменения откатываются.
 
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1967:
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        Внутри вложенного with uow: добавляем объект и затем выбрасываем
+        исключение. UoW обязан выполнить rollback().
+        """
+        SessionFactory = _make_session_factory()
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
 
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-cursor = <sqlite3.Cursor object at 0x726b033fc2c0>
-statement = 'INSERT INTO bids (source_id, raw_item_id, external_id, title, description, cargo_type, transport_type, weight_value, ..._duplicate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-parameters = (1, None, 'BID-123', 'Перевозка щебня', 'Нужна перевозка 30 т щебня', 'щебень', ...)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b03cb7b90>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       sqlite3.IntegrityError: NOT NULL constraint failed: bids.updated_at
-
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/default.py:951: IntegrityError
-
-The above exception was the direct cause of the following exception:
-
-    def test_bid_repository_and_duplicates():
-        session = SessionFactory()
-        src_repo = SqlAlchemySourceRepository(session=session)
-        bid_repo = SqlAlchemyBidRepository(session=session)
-
-        try:
-            source = src_repo.save(
-                SourceEntity(
-                    code="BID_TEST",
-                    name="Bid Test Source",
+        with pytest.raises(RuntimeError):
+            with uow:
+                src = Source(
+                    code="WITH_EXCEPTION",
+                    name="Broken Source",
                     kind="html",
-                    is_active=True,
-                    description="",
                 )
-            )
+                uow.session.add(src)
+                # Искусственно ломаем выполнение
+                raise RuntimeError("boom")
 
-            now = datetime.utcnow()
-            bid = BidEntity(
-                source_id=source.id or 0,
-                raw_item_id=None,
-                external_id="BID-123",
-                title="Перевозка щебня",
-                description="Нужна перевозка 30 т щебня",
-                cargo_type="щебень",
-                transport_type="самосвал",
-                load_point="Москва",
-                unload_point="СПб",
-                weight_tons=30.0,
-                price=25000.0,
-                currency="RUB",
-                contact="+7 900 000-00-00",
-                url="https://example.com/bid/123",
-                published_at=now,
-                created_at=now,
-            )
+        with SessionFactory() as session:
+            repo = SqlAlchemySourceRepository(session)
+>           sources = list(repo.list())
+                           ^^^^^^^^^
+E           AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
 
->           saved_bid = bid_repo.add(bid)
-                        ^^^^^^^^^^^^^^^^^
-
-tests/db/test_repositories_basic_crud.py:138:
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-src/dan_max_bids_parser/infrastructure/db/repositories.py:216: in add
-    self._session.flush()
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4331: in flush
-    self._flush(objects)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4466: in _flush
-    with util.safe_reraise():
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py:224: in __exit__
-    raise exc_value.with_traceback(exc_tb)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/session.py:4427: in _flush
-    flush_context.execute()
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
-    rec.execute(self)
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
-    util.preloaded.orm_persistence.save_obj(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
-    _emit_insert_statements(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
-    result = connection.execute(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1419: in execute
-    return meth(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
-    return connection._execute_clauseelement(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1641: in _execute_clauseelement
-    ret = self._execute_context(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
-    return self._exec_single_context(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
-    self._handle_dbapi_exception(
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
-    self.dialect.do_execute(
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x726b049ad190>
-cursor = <sqlite3.Cursor object at 0x726b033fc2c0>
-statement = 'INSERT INTO bids (source_id, raw_item_id, external_id, title, description, cargo_type, transport_type, weight_value, ..._duplicate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-parameters = (1, None, 'BID-123', 'Перевозка щебня', 'Нужна перевозка 30 т щебня', 'щебень', ...)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x726b03cb7b90>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: bids.updated_at
-E       [SQL: INSERT INTO bids (source_id, raw_item_id, external_id, title, description, cargo_type, transport_type, weight_value, weight_unit, price_value, price_currency, load_location, unload_location, load_region, unload_region, published_at, received_at, contact_name, contact_phone, contact_email, url, dedup_key, is_duplicate, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
-E       [parameters: (1, None, 'BID-123', 'Перевозка щебня', 'Нужна перевозка 30 т щебня', 'щебень', 'самосвал', None, None, None, None, None, None, None, None, '2025-12-02 21:53:01.383415', None, None, None, None, 'https://example.com/bid/123', None, 0, '2025-12-02 21:53:01.383415', None)]
-E       (Background on this error at: https://sqlalche.me/e/20/gkpj)
-
-/root/.cache/pypoetry/virtualenvs/dan-max-bids-parser-jNbjf0in-py3.11/lib/python3.11/site-packages/sqlalchemy/engine/default.py:951: IntegrityError
+tests/db/test_unit_of_work_sqlalchemy.py:107: AttributeError
 =============================================== short test summary info ================================================
-FAILED tests/db/test_repositories_basic_crud.py::test_raw_item_repository_and_mapping - sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: raw_items.fetched_at
-FAILED tests/db/test_repositories_basic_crud.py::test_bid_repository_and_duplicates - sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: bids.updated_at
-2 failed, 1 passed in 0.81s
-➜  repo_dan_max_bids_parser git:(feat/mvp-initial-schema) ✗
+FAILED tests/db/test_unit_of_work_sqlalchemy.py::test_uow_commit_persists_changes - AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
+FAILED tests/db/test_unit_of_work_sqlalchemy.py::test_uow_without_commit_rolls_back_changes - AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
+FAILED tests/db/test_unit_of_work_sqlalchemy.py::test_uow_rollback_on_exception - AttributeError: 'SqlAlchemySourceRepository' object has no attribute 'list'
+============================================= 3 failed, 14 passed in 0.46s =============================================
+➜  repo_dan_max_bids_parser git:(feat/mvp-sqlalchemy-uow) ✗
