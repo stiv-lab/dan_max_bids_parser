@@ -41,6 +41,11 @@
 
 ## src/dan_max_bids_parser/infrastructure/
 
+### adapters/
+
+- `src/dan_max_bids_parser/infrastructure/adapters/samosval_raw_item_provider_adapter.py`  
+  Описание: Адаптер: SamosvalRawItemProviderAdapter.
+
 ### db/
 
 - `src/dan_max_bids_parser/infrastructure/db/base.py`  
