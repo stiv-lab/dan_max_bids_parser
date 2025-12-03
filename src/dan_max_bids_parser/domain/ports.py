@@ -31,6 +31,25 @@ class SourceRepositoryPort(Protocol):
         ...
 
 
+class RawItemProviderPort(Protocol):
+    """
+    Порт внешнего провайдера сырых объектов для конкретного Source.
+
+    Это абстракция над HTML/Telegram/API-адаптерами:
+    реализация должна только загружать данные и возвращать RawItemEntity,
+    не занимаясь их сохранением в БД.
+    """
+
+    def fetch_raw_items(self, source: SourceEntity) -> Iterable[RawItemEntity]:
+        """
+        Получить сырые объекты для заданного источника.
+
+        Реализация сама решает, сколько объектов вернуть (0..N),
+        но не должна выполнять побочных эффектов в хранилище.
+        """
+        ...
+
+
 class RawItemRepositoryPort(Protocol):
     """
     Порт для работы с сырыми объектами (RawItemEntity).
