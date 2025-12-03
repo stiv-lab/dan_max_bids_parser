@@ -60,6 +60,16 @@
 - `src/dan_max_bids_parser/infrastructure/http/html_client.py`  
   Описание: Описание отсутствует
 
+### parsers/
+
+- `src/dan_max_bids_parser/infrastructure/parsers/samosval_html_parser.py`  
+  Описание: Описание отсутствует
+
+### providers/
+
+- `src/dan_max_bids_parser/infrastructure/providers/samosval_raw_item_provider.py`  
+  Описание: Описание отсутствует
+
 
 ## src/dan_max_bids_parser/interfaces/
 
