@@ -19,6 +19,7 @@ from typing import Optional
 from sqlalchemy import inspect
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.exc import NoSuchModuleError
+from sqlalchemy import inspect
 
 
 def _get_db_url_from_app_config() -> Optional[str]:
@@ -128,28 +129,24 @@ def test_initial_schema_tables_exist() -> None:
 
 
 def test_sources_table_columns() -> None:
-    """
-    Минимальная проверка структуры таблицы sources.
-    """
     engine = _create_engine()
     inspector = inspect(engine)
-
     columns = {col["name"] for col in inspector.get_columns("sources")}
 
-    expected_columns = {
+    expected = {
         "id",
         "code",
         "name",
-        "type",
-        "base_url",
-        "is_enabled",
-        "priority",
+        "kind",         # вместо старого type
+        "is_enabled",   # физическое поле (domain: is_active)
+        "description",
         "created_at",
         "updated_at",
     }
 
-    missing = expected_columns - columns
+    missing = expected - columns
     assert not missing, f"В таблице sources отсутствуют колонки: {sorted(missing)}"
+
 
 
 def test_bids_table_columns() -> None:
